@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Serene AI</title>
+    <!-- Tailwind CSS CDN - Convenient for development, but consider local build for production -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter for a clean, modern look -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Body styling: Full height, centered, calm pink radial gradient background */
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at top left, #FFE4E1 0%, #FFF0F5 100%); /* Misty Rose to Lavender Blush */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden; /* Prevent body scroll, chat container handles scroll */
+            position: relative; /* Needed for positioning the new background elements */
+        }
+
+        /* New: Subtle background elements for visual interest */
+        .background-element {
+            position: absolute;
+            background: rgba(255, 105, 180, 0.25); /* Hot Pink with noticeably higher opacity */
+            border-radius: 50%; /* Make them circular */
+            filter: blur(60px); /* Significantly increased blur for a soft, glowing orb effect */
+            pointer-events: none; /* Ensure they don't interfere with interaction */
+            animation: float 25s infinite ease-in-out alternate; /* Slower, more ethereal animation */
+            z-index: -1; /* Place them behind the chat container */
+        }
+
+        .background-element:nth-child(1) {
+            width: 300px; /* Much larger */
+            height: 300px;
+            top: 15%;
+            left: 8%;
+            animation-duration: 28s; /* Varied speed */
+            animation-delay: 0s;
+        }
+
+        .background-element:nth-child(2) {
+            width: 220px; /* Larger */
+            height: 220px;
+            bottom: 20%;
+            right: 12%;
+            background: rgba(255, 20, 147, 0.3); /* Deep Pink with higher opacity */
+            animation-duration: 30s; /* Varied speed */
+            animation-delay: 5s;
+        }
+
+        .background-element:nth-child(3) {
+            width: 160px; /* Larger */
+            height: 160px;
+            top: 30%;
+            right: 15%;
+            background: rgba(199, 21, 133, 0.25); /* Medium Violet Red with higher opacity */
+            animation-duration: 22s; /* Varied speed */
+            animation-delay: 10s;
+        }
+
+        .background-element:nth-child(4) {
+            width: 350px; /* Much larger */
+            height: 350px;
+            bottom: 10%;
+            left: 20%;
+            background: rgba(255, 105, 180, 0.2); /* Slightly different opacity */
+            animation-duration: 35s; /* Varied speed */
+            animation-delay: 2s;
+        }
+
+        /* Keyframes for the gentle floating animation */
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); opacity: 0.6; }
+            50% { transform: translate(40px, -40px) scale(1.1); opacity: 0.9; } /* More movement and scale, higher peak opacity */
+            100% { transform: translate(0, 0) scale(1); opacity: 0.6; }
+        }
+
+
+        /* Main chat container styling: White background, rounded corners, soft shadow */
+        .chat-container {
+            width: 100%;
+            max-width: 500px; /* Max width for desktop, fluid for mobile */
+            height: 80vh; /* Takes 80% of viewport height */
+            display: flex;
+            flex-direction: column; /* Stack header, messages, input vertically */
+            background-color: #ffffff;
+            border-radius: 1.5rem; /* Large border radius for soft look */
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15); /* Deeper, softer shadow for depth */
+            overflow: hidden; /* Ensures content respects rounded corners */
+            border: 1px solid rgba(255, 255, 255, 0.8); /* Subtle white border for added depth */
+            z-index: 1; /* Ensure chat container is above background elements */
+        }
+        /* Chat header styling: Vibrant pink gradient, centered text, subtle animated background elements */
+        .chat-header {
+            background-image: linear-gradient(to right, #FF69B4, #FF1493); /* Hot Pink to Deep Pink gradient */
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.75rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            border-top-left-radius: 1.5rem;
+            border-top-right-radius: 1.5rem;
+            position: relative; /* Needed for positioning pseudo-elements */
+            overflow: hidden; /* Ensures pseudo-elements stay within bounds */
+        }
+        /* Pseudo-elements for header background animation */
+        .chat-header::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            left: -50px;
+            width: 150px;
+            height: 150px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            filter: blur(30px);
+            animation: pulse 4s infinite ease-in-out; /* Subtle pulsing animation */
+        }
+        .chat-header::after {
+            content: '';
+            position: absolute;
+            bottom: -30px;
+            right: -30px;
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 50%;
+            filter: blur(25px);
+            animation: pulse 4s infinite ease-in-out reverse; /* Reversed animation for variety */
+        }
+        /* Keyframes for the pulsing animation */
+        @keyframes pulse {
+            0% { transform: scale(0.8); opacity: 0.7; }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(0.8); opacity: 0.7; }
+        }
+
+        /* Chat messages area: Scrollable, light background, subtle pattern */
+        .chat-messages {
+            flex-grow: 1; /* Takes up available space */
+            padding: 1.5rem;
+            overflow-y: auto; /* Enable vertical scrolling */
+            scroll-behavior: smooth; /* Smooth scrolling for new messages */
+            background-color: #FDFDFD; /* Very light background */
+            position: relative; /* For positioning subtle pattern */
+        }
+        /* Subtle background pattern for chat messages area using SVG data URI */
+        .chat-messages::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('data:image/svg+xml,%3Csvg width="6" height="6" viewBox="0 0 6 6" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="%23FFC0CB" fill-opacity="0.4" fill-rule="evenodd"%3E%3Cpath d="M5 0h1L0 6V5zM6 5v1H5z"/%3E%3C/g%3E%3C/svg%3E'); /* Subtle Pink dot pattern */
+            opacity: 0.6;
+            pointer-events: none; /* Allows clicks to pass through to elements beneath */
+        }
+        /* General message styling */
+        .message {
+            display: flex;
+            margin-bottom: 1rem;
+            align-items: flex-end;
+        }
+        /* User message alignment (right) */
+        .message.user {
+            justify-content: flex-end;
+        }
+        /* AI message alignment (left) */
+        .message.ai {
+            justify-content: flex-start;
+        }
+        /* Message bubble styling: Max width, padding, rounded corners, soft shadow */
+        .message-bubble {
+            max-width: 75%;
+            padding: 0.75rem 1.25rem;
+            border-radius: 1.2rem;
+            line-height: 1.5;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            word-wrap: break-word; /* Prevents long words from overflowing */
+            font-size: 0.95rem; /* Slightly smaller for a calmer feel */
+        }
+        /* User message bubble specific styling: White to light pink gradient */
+        .message.user .message-bubble {
+            background-image: linear-gradient(to right, #FFFFFF, #FFC0CB); /* White to Pink */
+            color: #333333; /* Dark text for readability */
+            border-bottom-right-radius: 0.3rem; /* Small tail for bubble effect */
+        }
+        /* AI message bubble specific styling: Soft light pink */
+        .message.ai .message-bubble {
+            background-color: #F8BBD0; /* Pink 200 */
+            color: #333333;
+            border-bottom-left-radius: 0.3rem; /* Small tail for bubble effect */
+        }
+
+        /* Chat input area: Flex container for input and button */
+        .chat-input-area {
+            display: flex;
+            padding: 1.5rem;
+            background-color: #ffffff;
+            border-top: 1px solid #E5E7EB;
+            border-bottom-left-radius: 1.5rem;
+            border-bottom-right-radius: 1.5rem;
+        }
+        /* Input field styling: Pill shape, subtle border, smooth transition on focus */
+        .chat-input-area input {
+            flex-grow: 1; /* Takes up most space */
+            padding: 0.75rem 1.25rem;
+            border: 1px solid #D1D5DB;
+            border-radius: 9999px; /* Very large border radius for pill shape */
+            outline: none; /* Remove default focus outline */
+            font-size: 1rem;
+            transition: all 0.2s ease-in-out; /* Smooth transition for focus effect */
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06); /* Inner shadow for depth */
+        }
+        /* Input field focus styling: Hot Pink border and glow */
+        .chat-input-area input:focus {
+            border-color: #FF69B4; /* Hot Pink */
+            box-shadow: 0 0 0 3px rgba(255, 105, 180, 0.3); /* Hot Pink glow */
+        }
+        /* Send button styling: Vibrant pink gradient, pill shape, interactive effects */
+        .chat-input-area button {
+            background-image: linear-gradient(to right, #FF1493, #C71585); /* Deep Pink to Medium Violet Red gradient */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 9999px; /* Pill shape */
+            margin-left: 1rem;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 4px 12px rgba(255, 20, 147, 0.3); /* Soft shadow */
+        }
+        /* Send button hover effects */
+        .chat-input-area button:hover {
+            opacity: 0.9;
+            transform: translateY(-1px); /* Slight lift effect */
+            box-shadow: 0 6px 16px rgba(255, 20, 147, 0.4); /* Enhanced shadow */
+        }
+        /* Send button active (click) effects */
+        .chat-input-area button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 8px rgba(255, 20, 147, 0.2); /* Recessed shadow */
+        }
+        /* Loading dots animation for typing indicator */
+        .loading-dots span {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            margin: 0 2px;
+            background-color: #F48FB1; /* Pink 300 */
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out both; /* Bouncing animation */
+        }
+        /* Staggered animation delays for loading dots */
+        .loading-dots span:nth-child(1) { animation-delay: -0.32s; }
+        .loading-dots span:nth-child(2) { animation-delay: -0.16s; }
+        .loading-dots span:nth-child(3) { animation-delay: 0s; }
+        /* Keyframes for the bouncing animation */
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); } /* Hidden at start/end */
+            40% { transform: scale(1); } /* Fully visible in middle */
+        }
+        /* Responsive adjustments for smaller screens */
+        @media (max-width: 640px) {
+            .chat-container {
+                width: 95%; /* Wider on small screens */
+                height: 90vh; /* Taller on small screens */
+                margin: 1rem 0;
+            }
+            .chat-header {
+                padding: 1rem;
+                font-size: 1.5rem;
+            }
+            .chat-messages {
+                padding: 1rem;
+            }
+            .chat-input-area {
+                padding: 1rem;
+            }
+            .chat-input-area input {
+                padding: 0.6rem 1rem;
+                font-size: 0.9rem;
+            }
+            .chat-input-area button {
+                padding: 0.6rem 1.2rem;
+                font-size: 0.9rem;
+                margin-left: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- New: Floating background elements -->
+    <div class="background-element"></div>
+    <div class="background-element"></div>
+    <div class="background-element"></div>
+    <div class="background-element"></div>
+
+    <div class="chat-container">
+        <div class="chat-header">Serene AI</div>
+        <div class="chat-messages" id="chat-messages">
+            <!-- Initial AI welcome message -->
+            <div class="message ai">
+                <div class="message-bubble">
+                    Hello! I'm Serene AI, your empathetic guide for emotional well-being. I'm here to listen and help you explore your feelings. How are you feeling today?
+                </div>
+            </div>
+        </div>
+        <div class="chat-input-area">
+            <input type="text" id="user-input" placeholder="Type your message..." autocomplete="off">
+            <button id="send-button">Send</button>
+        </div>
+    </div>
+
+    <!-- Link to the separate JavaScript file.
+         The 'type="module"' is important for using ES6 modules. -->
+    <script type="module" src="./script.js"></script>
+</body>
+</html>
